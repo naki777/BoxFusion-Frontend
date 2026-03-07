@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 import API from '../services/api';
 import Navbar from '../components/Navbar';
 
@@ -99,6 +99,7 @@ function Login() {
           </div>
         </div>
       </div>
+      
 
       {/* Footer-ის პატარა ვერსია */}
       <footer className="py-6 text-center text-gray-400 text-sm">
