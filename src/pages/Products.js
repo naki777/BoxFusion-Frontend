@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../services/api';
+import { useCart } from '../context/CartContext';
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
+  const { addToCart, totalItems } = useCart();
 
   useEffect(() => {
     setLoading(true);
@@ -42,6 +44,14 @@ function Products() {
         <div className="flex gap-8 items-center">
           <Link to="/" className="text-gray-600 hover:text-blue-800 font-medium transition">
             მთავარი
+          </Link>
+          <Link to="/cart" className="relative text-gray-600 hover:text-blue-800 font-medium transition text-2xl">
+            🛒
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {totalItems}
+              </span>
+            )}
           </Link>
           <Link to="/login" className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-5 py-2 rounded-full hover:scale-105 transition duration-300 shadow-md">
             შესვლა
@@ -92,9 +102,10 @@ function Products() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filtered.map(product => (
-                  <div
+                  <Link
+                    to={`/product/${product.id}`}
                     key={product.id}
-                    className="bg-white rounded-2xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden group"
+                    className="bg-white rounded-2xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden group block"
                   >
                     {/* სურათი */}
                     <div className="relative overflow-hidden h-52">
@@ -138,6 +149,7 @@ function Products() {
                       </div>
                       <button
                         disabled={product.count <= 0}
+                        onClick={e => { e.preventDefault(); addToCart(product); }}
                         className={`w-full py-2.5 rounded-full font-semibold transition ${
                           product.count > 0
                             ? 'bg-blue-800 hover:bg-blue-900 text-white'
@@ -147,7 +159,7 @@ function Products() {
                         {product.count > 0 ? '🛒 კალათაში დამატება' : 'ამოიწურა'}
                       </button>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -166,3 +178,7 @@ function Products() {
 }
 
 export default Products;
+
+
+
+
