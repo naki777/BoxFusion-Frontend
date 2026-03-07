@@ -1,17 +1,37 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 function Navbar() {
   const { totalItems } = useCart();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // ვამოწმებთ ავტორიზაციის სტატუსს კომპონენტის ჩატვირთვისას
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token); // თუ თოკენი არსებობს, გახდება true
+  }, []);
+
+  // სისტემიდან გამოსვლის ფუნქცია
+  const handleLogout = () => {
+    localStorage.removeItem('token'); // ვშლით თოკენს
+    setIsLoggedIn(false);
+    setMenuOpen(false);
+    navigate('/'); // გადამისამართება მთავარ გვერდზე
+  };
 
   return (
     <nav className="bg-white shadow-sm px-4 md:px-8 py-3 sticky top-0 z-10">
       <div className="flex justify-between items-center">
-        {/* ლოგო */}
+        {/* ლოგო - Cloudinary-ს სწორი ლინკით */}
         <Link to="/" className="flex items-center gap-2 group">
-          <img src="/logo.png" alt="გავაოცე" className="h-10 md:h-14 w-auto transition-transform duration-300 group-hover:scale-105" />
+          <img 
+            src="https://res.cloudinary.com/dj4kd5tjf/image/upload/v1772891360/LOGO_knvwgr.png" 
+            alt="გავაოცე" 
+            className="h-10 md:h-14 w-auto transition-transform duration-300 group-hover:scale-105" 
+          />
           <span className="text-xl md:text-3xl font-extrabold bg-gradient-to-r from-blue-900 to-yellow-500 bg-clip-text text-transparent tracking-wide">
             გავაოცე
           </span>
@@ -29,9 +49,23 @@ function Navbar() {
               </span>
             )}
           </Link>
-          <Link to="/login" className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-5 py-2 rounded-full hover:scale-105 transition duration-300 shadow-md">
-            შესვლა
-          </Link>
+
+          {/* დინამიური ღილაკი: შესვლა ან გამოსვლა */}
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-5 py-2 rounded-full hover:bg-red-600 transition duration-300 shadow-md font-medium"
+            >
+              გამოსვლა
+            </button>
+          ) : (
+            <Link 
+              to="/login" 
+              className="bg-gradient-to-r from-blue-800 to-blue-900 text-white px-5 py-2 rounded-full hover:scale-105 transition duration-300 shadow-md font-medium"
+            >
+              შესვლა
+            </Link>
+          )}
         </div>
 
         {/* Mobile ღილაკები */}
@@ -62,9 +96,23 @@ function Navbar() {
           <Link to="/cart" onClick={() => setMenuOpen(false)} className="text-gray-700 hover:text-blue-800 font-medium text-lg px-2">
             🛒 კალათა {totalItems > 0 && `(${totalItems})`}
           </Link>
-          <Link to="/login" onClick={() => setMenuOpen(false)} className="bg-blue-800 text-white px-5 py-3 rounded-full font-bold text-center hover:bg-blue-900 transition">
-            შესვლა
-          </Link>
+          
+          {isLoggedIn ? (
+            <button 
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-5 py-3 rounded-full font-bold text-center hover:bg-red-600 transition"
+            >
+              გამოსვლა
+            </button>
+          ) : (
+            <Link 
+              to="/login" 
+              onClick={() => setMenuOpen(false)} 
+              className="bg-blue-800 text-white px-5 py-3 rounded-full font-bold text-center hover:bg-blue-900 transition"
+            >
+              შესვლა
+            </Link>
+          )}
         </div>
       )}
     </nav>
