@@ -4,12 +4,12 @@ import API from '../services/api';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, LayoutGrid, Check, Loader2, Search, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ShoppingBag, LayoutGrid, Check, Loader2, Search, ArrowRight } from 'lucide-react';
 
 function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [ setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const { addToCart } = useCart();
   const [addingId, setAddingId] = useState(null);

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Star, Check, ArrowRight, Sparkles } from 'lucide-react';
+import { ShoppingBag, Check, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 function Home() {
