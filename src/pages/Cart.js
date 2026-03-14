@@ -1,106 +1,149 @@
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
-import { Trash2, ShoppingBasket, ArrowLeft, CreditCard } from 'lucide-react';
+import { Trash2, ShoppingBasket, ArrowLeft, CreditCard, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 function Cart() {
-  const { cartItems, removeFromCart } = useCart();
-  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const { cartItems, removeFromCart, updateQuantity } = useCart(); // თუ updateQuantity არ გაქვს, ქვემოთა ფუნქციებს წაშლი
+  const totalPrice = cartItems.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#fafafa] pb-20">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-12">
+      <main className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12">
         
-        {/* სათაური */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-100">
-              <ShoppingBasket className="text-white" size={32} />
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+          <div>
+            <span className="text-indigo-600 font-black tracking-[0.2em] uppercase text-[10px] mb-2 block ml-1">თქვენი არჩევანი</span>
+            <div className="flex items-center gap-3">
+               <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter italic uppercase">კალათა</h2>
+               <span className="bg-slate-900 text-white text-xs font-black px-3 py-1 rounded-full">{cartItems.length}</span>
             </div>
-            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">შენი კალათა</h2>
           </div>
-          <Link to="/products" className="text-slate-400 hover:text-indigo-600 font-bold flex items-center gap-2 transition-colors">
-            <ArrowLeft size={18} /> მაღაზიაში დაბრუნება
+          <Link to="/products" className="group text-slate-400 hover:text-indigo-600 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 transition-all">
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> მაღაზიაში დაბრუნება
           </Link>
         </div>
 
         {cartItems.length === 0 ? (
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white py-20 rounded-[3rem] text-center shadow-sm border border-slate-100"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white py-24 rounded-[3rem] text-center shadow-2xl shadow-slate-100 border border-white"
           >
-            <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-               <ShoppingBasket className="text-slate-200" size={40} />
+            <div className="bg-slate-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+               <ShoppingBasket className="text-slate-200" size={48} strokeWidth={1} />
             </div>
-            <p className="text-xl text-slate-400 font-bold italic mb-8">კალათა ცარიელია...</p>
-            <Link to="/products" className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold hover:bg-indigo-600 transition-all">
-              დაათვალიერე ნივთები
+            <p className="text-xl text-slate-400 font-black italic mb-8 uppercase tracking-tighter">კალათა ცარიელია</p>
+            <Link to="/products" className="inline-flex bg-slate-950 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-xs tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-indigo-100">
+              დაიწყე შოპინგი
             </Link>
           </motion.div>
         ) : (
-          <div className="space-y-6">
-            <AnimatePresence mode="popLayout">
-              {cartItems.map(item => (
-                <motion.div 
-                  layout
-                  key={item.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className="bg-white p-4 pr-8 rounded-[2rem] flex items-center gap-6 shadow-sm border border-slate-50 group hover:shadow-md transition-shadow"
-                >
-                  {/* სურათი (alt დამატებულია Vercel-ისთვის) */}
-                  <img 
-                    src={item.image[0]} 
-                    alt={item.name} 
-                    className="w-24 h-24 rounded-2xl object-cover shadow-md group-hover:scale-105 transition-transform" 
-                  />
-                  
-                  <div className="flex-1">
-                    <h4 className="font-black text-slate-900 text-lg">{item.name}</h4>
-                    <p className="text-indigo-600 font-bold flex items-center gap-2">
-                      {item.price} ₾ <span className="text-slate-300 text-sm">x</span> {item.quantity}
-                    </p>
-                  </div>
-
-                  <div className="text-right mr-4 hidden sm:block">
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">ჯამი</p>
-                    <p className="font-black text-slate-900">{(item.price * item.quantity).toFixed(2)} ₾</p>
-                  </div>
-
-                  <button 
-                    onClick={() => removeFromCart(item.id)} 
-                    className="p-3 bg-slate-50 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            
+            {/* Items List */}
+            <div className="lg:col-span-2 space-y-4">
+              <AnimatePresence mode="popLayout">
+                {cartItems.map((item, idx) => (
+                  <motion.div 
+                    layout
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white p-4 md:p-6 rounded-[2.5rem] flex flex-col sm:flex-row items-center gap-6 shadow-sm border border-white group hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500"
                   >
-                    <Trash2 size={20} />
+                    {/* Product Image */}
+                    <div className="relative w-full sm:w-32 aspect-square rounded-[2rem] overflow-hidden bg-slate-50 shadow-inner">
+                      <img 
+                        src={item.image?.[0]} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      />
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 text-center sm:text-left">
+                      <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest mb-1 block">{item.categoryName}</span>
+                      <h4 className="font-black text-slate-900 text-lg md:text-xl leading-tight mb-2 italic uppercase">{item.name}</h4>
+                      <div className="flex items-center justify-center sm:justify-start gap-4">
+                        <span className="text-2xl font-black text-slate-950">{item.price}₾</span>
+                        {/* Quantity Controls (Optional) */}
+                        <div className="flex items-center bg-slate-50 rounded-xl px-2 py-1 border border-slate-100">
+                           <button onClick={() => updateQuantity?.(item.id, (item.quantity || 1) - 1)} className="p-1 hover:text-indigo-600 transition-colors"><Minus size={14}/></button>
+                           <span className="px-3 font-black text-xs">{item.quantity || 1}</span>
+                           <button onClick={() => updateQuantity?.(item.id, (item.quantity || 1) + 1)} className="p-1 hover:text-indigo-600 transition-colors"><Plus size={14}/></button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Subtotal & Delete */}
+                    <div className="flex sm:flex-col items-center justify-between w-full sm:w-auto gap-4 pt-4 sm:pt-0 border-t sm:border-0 border-slate-50">
+                      <div className="text-right hidden sm:block">
+                        <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest">ქვეჯამი</p>
+                        <p className="font-black text-slate-900 text-lg italic">{(item.price * (item.quantity || 1)).toFixed(2)}₾</p>
+                      </div>
+                      <button 
+                        onClick={() => removeFromCart(item.id)} 
+                        className="w-12 h-12 flex items-center justify-center bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-2xl transition-all duration-300"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Checkout Summary Card */}
+            <aside className="lg:sticky lg:top-24">
+              <motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-slate-950 p-8 md:p-10 rounded-[3rem] text-white shadow-3xl shadow-indigo-200/50 relative overflow-hidden"
+              >
+                {/* Decorative Background Icon */}
+                <div className="absolute -bottom-10 -right-10 opacity-10 pointer-events-none rotate-12">
+                  <CreditCard size={200} />
+                </div>
+
+                <div className="relative z-10 space-y-6">
+                  <div className="border-b border-white/10 pb-6">
+                    <h3 className="text-2xl font-black italic uppercase tracking-tighter mb-4">შეჯამება</h3>
+                    <div className="space-y-3">
+                       <div className="flex justify-between text-slate-400 font-bold text-sm">
+                          <span>პროდუქტები</span>
+                          <span>{totalPrice.toFixed(2)} ₾</span>
+                       </div>
+                       <div className="flex justify-between text-slate-400 font-bold text-sm">
+                          <span>მიწოდება</span>
+                          <span className="text-emerald-400">უფასო</span>
+                       </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-slate-400 font-black uppercase tracking-widest text-[10px] mb-1">სულ გადასახდელი</p>
+                    <div className="text-5xl font-black tracking-tighter italic">
+                      {totalPrice.toFixed(2)}<span className="text-indigo-400 ml-1">₾</span>
+                    </div>
+                  </div>
+
+                  <button className="w-full bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white py-6 rounded-[2rem] font-black text-xl transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 group">
+                    გადახდა <CreditCard size={24} className="group-hover:translate-x-1 transition-transform" />
                   </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
 
-            {/* შეჯამება */}
-            <motion.div 
-              layout
-              className="bg-slate-900 p-10 rounded-[3rem] mt-10 text-white flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl shadow-indigo-100/50 relative overflow-hidden"
-            >
-              <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
-                <CreditCard size={200} />
-              </div>
-
-              <div className="relative z-10">
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-1">სულ გადასახდელი</p>
-                <h3 className="text-5xl font-black tracking-tighter">
-                  {totalPrice.toFixed(2)} <span className="text-indigo-400">₾</span>
-                </h3>
-              </div>
-
-              <button className="relative z-10 bg-indigo-600 hover:bg-white hover:text-indigo-600 text-white px-12 py-5 rounded-[1.5rem] font-black text-xl transition-all shadow-xl active:scale-95 flex items-center gap-3">
-                <CreditCard size={24} /> გადახდა
-              </button>
-            </motion.div>
+                  <p className="text-[9px] text-center text-slate-500 font-bold uppercase tracking-widest">
+                    უსაფრთხო გადახდა გარანტირებულია
+                  </p>
+                </div>
+              </motion.div>
+            </aside>
+            
           </div>
         )}
       </main>
