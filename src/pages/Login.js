@@ -2,28 +2,39 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import API from '../services/api';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext'; // დავამატეთ კონტექსტი
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { login } = useAuth(); // კონტექსტის ფუნქცია
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // ფორმის რეფრეშის თავიდან ასაცილებლად
+    e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      // ვუგზავნით email-ს და password-ს
       const response = await API.post('/Auth/login', { email, password });
-      localStorage.setItem('token', response.data.token);
       
-      // window.location.href-ის ნაცვლად ვიყენებთ navigate-ს უკეთესი UX-ისთვის
+      const token = response.data.token;
+      localStorage.setItem('token', token);
+      
+      // აუცილებელია კონტექსტშიც ჩავწეროთ მონაცემები
+      login({ 
+        email: email, 
+        token: token 
+      });
+      
+      // გადავდივართ პროდუქტებზე
       navigate('/products');
-      // თუ მაინც გინდა რომ მთლიანი გვერდი დარეფრეშდეს ნავბარის სტატუსისთვის:
-      window.location.reload(); 
+      
     } catch (err) {
+      console.error("Login Error:", err.response?.data);
       setError('არასწორი მეილი ან პაროლი');
     } finally {
       setLoading(false);
@@ -36,7 +47,6 @@ function Login() {
       
       <div className="flex-grow flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 border border-gray-100">
-          {/* ლოგო და სათაური */}
           <div className="text-center mb-10">
             <img 
               src="https://res.cloudinary.com/dj4kd5tjf/image/upload/v1772891360/LOGO_knvwgr.png" 
@@ -47,7 +57,6 @@ function Login() {
             <p className="text-gray-500 mt-2">გთხოვთ, გაიაროთ ავტორიზაცია</p>
           </div>
 
-          {/* ფორმა */}
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">ელ-ფოსტა</label>
@@ -88,7 +97,6 @@ function Login() {
             </button>
           </form>
 
-          {/* დამატებითი ლინკი */}
           <div className="mt-8 text-center border-t pt-6">
             <p className="text-gray-600">
               ჯერ არ გაქვს ანგარიში?{' '}
@@ -100,8 +108,6 @@ function Login() {
         </div>
       </div>
       
-
-      {/* Footer-ის პატარა ვერსია */}
       <footer className="py-6 text-center text-gray-400 text-sm">
         © 2026 გავაოცე — ყველა უფლება დაცულია
       </footer>

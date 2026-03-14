@@ -1,123 +1,132 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
-import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
+import { useCart } from '../context/CartContext';
+import { motion } from 'framer-motion';
+import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, Star, Check, Loader2 } from 'lucide-react';
 
-function ProductDetails() {
+function ProductDetail() {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+  const [product, setProduct] = useState(null);
+  const [isAdded, setIsAdded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     API.get(`/Product/${id}`)
       .then(res => {
         setProduct(res.data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, [id]);
 
+  const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(product);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-blue-800"></div>
+    <div className="h-screen flex flex-col items-center justify-center bg-[#fafafa]">
+      <Loader2 className="animate-spin text-indigo-600 mb-4" size={48} />
+      <span className="text-slate-400 font-bold uppercase tracking-widest text-sm">იტვირთება დეტალები...</span>
     </div>
   );
 
-  if (!product) return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">პროდუქტი არ მოიძებნა</h2>
-      <Link to="/products" className="text-blue-800 font-bold hover:underline">დაბრუნდი მაღაზიაში</Link>
-    </div>
-  );
+  if (!product) return <div className="h-screen flex items-center justify-center font-bold">პროდუქტი ვერ მოიძებნა</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-[#fafafa]">
       <Navbar />
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <button onClick={() => navigate(-1)} className="group flex items-center gap-2 text-slate-400 hover:text-indigo-600 font-bold mb-8 transition-all">
+          <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> უკან დაბრუნება
+        </button>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-16 flex-grow w-full">
-        {/* უკან დაბრუნების ღილაკი */}
-        <Link to="/products" className="inline-flex items-center text-gray-500 hover:text-blue-800 mb-6 transition gap-2 group">
-          <span className="group-hover:-translate-x-1 transition-transform">←</span> უკან დაბრუნება
-        </Link>
-
-        {/* მთავარი კონტეინერი: მობილურზე Column, კომპიუტერზე Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 bg-white p-4 md:p-8 rounded-3xl shadow-sm border border-gray-100">
-          
-          {/* სურათის სექცია */}
-          <div className="w-full lg:w-1/2">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 group">
-              <img
-                src={product.image && product.image[0] ? product.image[0] : "https://via.placeholder.com/600x600?text=Gift"}
-                alt={product.name}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+            <div className="aspect-square rounded-[3.5rem] overflow-hidden bg-white shadow-2xl shadow-indigo-100/50 border border-white p-4">
+              <img src={product.image[0]} alt={product.name} className="w-full h-full object-cover rounded-[2.5rem]" />
             </div>
-            {/* პატარა სურათების გალერეა (თუ გაქვს მეტი სურათი) */}
-            {product.image?.length > 1 && (
-              <div className="grid grid-cols-4 gap-2 mt-4">
-                {product.image.map((img, idx) => (
-                  <img key={idx} src={img} className="w-full aspect-square object-cover rounded-lg border hover:border-blue-500 cursor-pointer" alt="გალერეა" />
-                ))}
-              </div>
-            )}
-          </div>
+          </motion.div>
 
-          {/* ინფორმაციის სექცია */}
-          <div className="w-full lg:w-1/2 flex flex-col justify-center">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col justify-center">
             <div className="mb-6">
-              <span className="text-sm font-bold text-blue-800 bg-blue-50 px-3 py-1 rounded-full">
-                {product.categoryName || 'უნიკალური საჩუქარი'}
+              <span className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest">
+                {product.categoryName}
               </span>
-              <h1 className="text-3xl md:text-4xl font-black text-gray-900 mt-4 leading-tight">
-                {product.name}
-              </h1>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl font-black text-slate-900 tracking-tighter mb-6 leading-tight">
+              {product.name}
+            </h1>
+            
+            <div className="flex items-center gap-4 mb-8 bg-white w-fit px-6 py-3 rounded-2xl shadow-sm border border-slate-50">
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => <Star key={i} size={18} className="fill-current"/>)}
+              </div>
+              <span className="text-slate-400 font-bold text-sm">5.0 (24 მიმოხილვა)</span>
             </div>
 
-            <p className="text-gray-500 text-base md:text-lg leading-relaxed mb-8 border-l-4 border-blue-100 pl-4">
+            <p className="text-lg text-slate-500 leading-relaxed mb-10 max-w-xl">
               {product.info}
             </p>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 p-6 bg-gray-50 rounded-2xl">
+            <div className="flex items-end gap-6 mb-12">
               <div>
-                <p className="text-gray-400 text-sm mb-1 font-medium">ფასი:</p>
-                <p className="text-4xl font-black text-blue-900">{product.price} ₾</p>
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">ღირებულება</span>
+                <div className="text-6xl font-black text-slate-900">
+                   {Number(product.price).toFixed(2)} <span className="text-indigo-600">₾</span>
+                </div>
               </div>
-              <div className="text-left sm:text-right">
-                <p className="text-gray-400 text-sm mb-1 font-medium">მარაგი:</p>
-                <p className={`font-bold ${product.count > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                  {product.count > 0 ? `ხელმისაწვდომია: ${product.count}` : 'ამოიწურა'}
-                </p>
-              </div>
+              {product.count !== undefined && (
+                <div className={`mb-2 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-tighter ${product.count > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                  {product.count > 0 ? `მარაგშია: ${product.count}` : 'ამოწურულია'}
+                </div>
+              )}
             </div>
 
-            <button
-              disabled={product.count <= 0}
-              onClick={() => addToCart(product)}
-              className={`w-full py-5 rounded-2xl font-bold text-xl shadow-lg transition duration-300 transform active:scale-95 ${
-                product.count > 0
-                  ? 'bg-gradient-to-r from-blue-800 to-blue-900 text-white hover:shadow-blue-200'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-              }`}
-            >
-              {product.count > 0 ? '🛒 კალათაში დამატება' : 'ნივთი ამოიწურა'}
-            </button>
-          </div>
-        </div>
-      </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button 
+                onClick={handleAddToCart}
+                disabled={product.count === 0}
+                className={`flex-1 py-6 rounded-[2rem] font-black text-xl transition-all flex items-center justify-center gap-3 shadow-2xl active:scale-95 disabled:opacity-50 ${
+                  isAdded ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-slate-950 text-white hover:bg-indigo-600 shadow-indigo-200'
+                }`}
+              >
+                {isAdded ? <><Check size={24} /> კალათაშია</> : <><ShoppingBag size={24} /> კალათაში დამატება</>}
+              </button>
+            </div>
 
-      <footer className="bg-blue-900 text-white text-center py-10">
-        <img 
-          src="https://res.cloudinary.com/dj4kd5tjf/image/upload/v1772891360/LOGO_knvwgr.png" 
-          alt="გავაოცე" 
-          className="h-12 w-auto mx-auto mb-3" 
-        />
-        <p className="text-xl font-bold text-yellow-400 mb-1">გავაოცე</p>
-        <p className="text-blue-200 text-sm opacity-70">© 2026 გავაოცე — ყველა უფლება დაცულია</p>
-      </footer>
+            <div className="grid grid-cols-2 gap-6 mt-12 border-t border-slate-100 pt-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl"><Truck size={20} /></div>
+                <div className="flex flex-col">
+                  <span className="font-black text-slate-900 text-sm">სწრაფი მიწოდება</span>
+                  <span className="text-slate-400 text-xs font-bold">მთელ საქართველოში</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl"><ShieldCheck size={20} /></div>
+                <div className="flex flex-col">
+                  <span className="font-black text-slate-900 text-sm">უსაფრთხოება</span>
+                  <span className="text-slate-400 text-xs font-bold">100% ხარისხი</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </main>
     </div>
   );
 }
 
-export default ProductDetails;
+export default ProductDetail;
