@@ -9,7 +9,7 @@ import ProductDetail from './pages/ProductDetail';
 import Login from './pages/Login';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
-
+import Register from './pages/Register';
 function App() {
   return (
     <AuthProvider>
@@ -28,6 +28,9 @@ function App() {
             {/* ავტორიზაცია */}
             <Route path="/login" element={<Login />} />
             
+              {/* რეგისტრაცია */}
+            <Route path="/register" element={<Register />} />
+
             {/* კალათა */}
             <Route path="/cart" element={<Cart />} />
             

@@ -1,40 +1,28 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate, Link } from 'react-router-dom'; 
 import API from '../services/api';
 import Navbar from '../components/Navbar';
-import { useAuth } from '../context/AuthContext'; // დავამატეთ კონტექსტი
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth(); // კონტექსტის ფუნქცია
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      // ვუგზავნით email-ს და password-ს
       const response = await API.post('/Auth/login', { email, password });
-      
       const token = response.data.token;
       localStorage.setItem('token', token);
-      
-      // აუცილებელია კონტექსტშიც ჩავწეროთ მონაცემები
-      login({ 
-        email: email, 
-        token: token 
-      });
-      
-      // გადავდივართ პროდუქტებზე
+      login({ email, token });
       navigate('/products');
-      
     } catch (err) {
-      console.error("Login Error:", err.response?.data);
       setError('არასწორი მეილი ან პაროლი');
     } finally {
       setLoading(false);
@@ -42,73 +30,60 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col overflow-hidden">
       <Navbar />
-      
-      <div className="flex-grow flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden p-8 border border-gray-100">
-          <div className="text-center mb-10">
+      <div className="flex-grow flex items-center justify-center px-4 py-6"> {/* py-12-დან py-6-ზე */}
+        <div className="max-w-md w-full bg-white rounded-[2rem] shadow-xl p-7 border border-gray-100">
+          <div className="text-center mb-6"> {/* mb-10-დან mb-6-ზე */}
             <img 
               src="https://res.cloudinary.com/dj4kd5tjf/image/upload/v1772891360/LOGO_knvwgr.png" 
               alt="გავაოცე" 
-              className="h-20 mx-auto mb-4"
+              className="h-14 mx-auto mb-3" // h-20-დან h-14-ზე
             />
-            <h2 className="text-3xl font-extrabold text-blue-900">მოგესალმებით</h2>
-            <p className="text-gray-500 mt-2">გთხოვთ, გაიაროთ ავტორიზაცია</p>
+            <h2 className="text-2xl font-black text-blue-900">მოგესალმებით</h2>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">ელ-ფოსტა</label>
-              <input
-                required
-                type="email"
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-3 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-gray-50 focus:bg-white"
-              />
-            </div>
+          <form onSubmit={handleLogin} className="space-y-4"> {/* space-y-6-დან space-y-4-ზე */}
+            <input
+              required
+              type="email"
+              placeholder="ელ-ფოსტა"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-5 py-3.5 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all"
+            />
+            <input
+              required
+              type="password"
+              placeholder="პაროლი"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-5 py-3.5 rounded-xl border border-gray-100 bg-gray-50 focus:bg-white outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all"
+            />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1 ml-1">პაროლი</label>
-              <input
-                required
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-5 py-3 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition duration-200 bg-gray-50 focus:bg-white"
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl text-center font-medium animate-pulse">
-                {error}
-              </div>
-            )}
+            {error && <p className="text-rose-500 text-xs font-bold text-center">{error}</p>}
 
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-800 to-blue-900 text-white py-4 rounded-2xl font-bold text-lg hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition duration-300 disabled:bg-gray-400 disabled:scale-100"
+              className="w-full bg-slate-950 text-white py-3.5 rounded-xl font-black hover:bg-blue-600 transition duration-300"
             >
-              {loading ? 'მიმდინარეობს შესვლა...' : 'შესვლა'}
+              {loading ? 'შესვლა...' : 'შესვლა'}
             </button>
           </form>
 
-          <div className="mt-8 text-center border-t pt-6">
-            <p className="text-gray-600">
-              ჯერ არ გაქვს ანგარიში?{' '}
-              <span className="text-blue-800 font-bold cursor-pointer hover:underline">
-                მალე დაემატება
-              </span>
-            </p>
+          <div className="mt-6 pt-6 border-t border-gray-50 flex flex-col items-center gap-3">
+            <p className="text-gray-400 text-xs font-bold">ჯერ არ გაქვს ანგარიში?</p>
+            <Link 
+              to="/register" 
+              className="w-full py-2.5 border-2 border-blue-600 text-blue-600 font-bold rounded-full text-center hover:bg-blue-50 text-sm"
+            >
+              ახალი ანგარიშის შექმნა
+            </Link>
           </div>
         </div>
       </div>
-      
-      <footer className="py-6 text-center text-gray-400 text-sm">
+      <footer className="py-4 text-center text-gray-400 text-[10px] font-bold uppercase">
         © 2026 გავაოცე — ყველა უფლება დაცულია
       </footer>
     </div>
