@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom'; // დავამატეთ Link
+import { useSearchParams, Link } from 'react-router-dom';
 import API from '../services/api';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
@@ -9,7 +9,6 @@ import { ShoppingBag, LayoutGrid, Check, Loader2, Search, ArrowRight } from 'luc
 function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [ setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const { addToCart } = useCart();
   const [addingId, setAddingId] = useState(null);
@@ -26,17 +25,16 @@ function Products() {
         setLoading(false);
       })
       .catch(() => {
-        setError('შეცდომა პროდუქტების ჩატვირთვისას');
         setLoading(false);
       });
 
     API.get('/Category')
       .then(res => setCategories(res.data))
       .catch(err => console.error("კატეგორიების ჩატვირთვის შეცდომა:", err));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleAddToCart = (e, product) => {
-    e.preventDefault(); // რომ არ გადავიდეს დეტალურ გვერდზე ღილაკზე დაჭერისას
+    e.preventDefault();
     addToCart(product);
     setAddingId(product.id);
     setTimeout(() => setAddingId(null), 1500);
@@ -60,7 +58,7 @@ function Products() {
             </h2>
           </div>
           
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 w-full md:w-auto custom-scrollbar">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 w-full md:w-auto">
             <button 
               onClick={() => setSearchParams({})}
               className={`px-5 py-2.5 rounded-2xl text-sm font-bold whitespace-nowrap transition-all flex items-center gap-2 ${!selectedCategory ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-100'}`}
@@ -82,12 +80,7 @@ function Products() {
         {loading ? (
           <div className="flex flex-col justify-center items-center h-64 gap-4">
             <Loader2 className="animate-spin text-indigo-600 w-12 h-12" />
-            <p className="text-slate-400 font-bold">იტვირთება კოლექცია...</p>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-[3rem] border border-dashed border-slate-200">
-             <Search className="mx-auto text-slate-200 mb-4" size={64} />
-             <h3 className="text-xl font-bold text-slate-800">არაფერი მოიძებნა</h3>
+            <p className="text-slate-400 font-bold">იტვირთება...</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -103,11 +96,6 @@ function Products() {
                 >
                   <Link to={`/product/${product.id}`} className="block aspect-[4/5] overflow-hidden relative">
                     <img src={product.image[0]} alt={product.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                       <div className="bg-white p-3 rounded-full text-slate-900 translate-y-4 group-hover:translate-y-0 transition-transform">
-                          <ArrowRight size={20} />
-                       </div>
-                    </div>
                   </Link>
 
                   <div className="p-6 flex flex-col flex-grow">
@@ -117,12 +105,10 @@ function Products() {
                     <p className="text-slate-500 text-xs mb-6 line-clamp-2">{product.info}</p>
                     
                     <div className="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-black text-slate-900">{product.price} <span className="text-indigo-600 text-lg">₾</span></span>
-                      </div>
+                      <span className="text-2xl font-black text-slate-900">{product.price} <span className="text-indigo-600">₾</span></span>
                       <button 
                         onClick={(e) => handleAddToCart(e, product)}
-                        className={`p-4 rounded-xl transition-all shadow-lg ${addingId === product.id ? 'bg-emerald-500 text-white' : 'bg-slate-950 text-white hover:bg-indigo-600'}`}
+                        className={`p-4 rounded-xl transition-all ${addingId === product.id ? 'bg-emerald-500 text-white' : 'bg-slate-950 text-white hover:bg-indigo-600'}`}
                       >
                         {addingId === product.id ? <Check size={20} /> : <ShoppingBag size={20} />}
                       </button>
