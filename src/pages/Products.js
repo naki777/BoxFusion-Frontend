@@ -4,7 +4,7 @@ import API from '../services/api';
 import { useCart } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, LayoutGrid, Check, Loader2, Search, ArrowRight } from 'lucide-react';
+import { ShoppingBag, LayoutGrid, Check, Loader2 } from 'lucide-react';
 
 function Products() {
   const [products, setProducts] = useState([]);
