@@ -8,24 +8,22 @@ function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // ვამოწმებთ ავტორიზაციის სტატუსს კომპონენტის ჩატვირთვისას
   useEffect(() => {
     const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token); // თუ თოკენი არსებობს, გახდება true
+    setIsLoggedIn(!!token);
   }, []);
 
-  // სისტემიდან გამოსვლის ფუნქცია
   const handleLogout = () => {
-    localStorage.removeItem('token'); // ვშლით თოკენს
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
     setMenuOpen(false);
-    navigate('/'); // გადამისამართება მთავარ გვერდზე
+    navigate('/');
   };
 
   return (
-    <nav className="bg-white shadow-sm px-4 md:px-8 py-3 sticky top-0 z-10">
+    <nav className="bg-white shadow-sm px-4 md:px-8 py-3 sticky top-0 z-50">
       <div className="flex justify-between items-center">
-        {/* ლოგო - Cloudinary-ს სწორი ლინკით */}
+        {/* ლოგო */}
         <Link to="/" className="flex items-center gap-2 group">
           <img 
             src="https://res.cloudinary.com/dj4kd5tjf/image/upload/v1772891360/LOGO_knvwgr.png" 
@@ -41,6 +39,17 @@ function Navbar() {
         <div className="hidden md:flex gap-8 items-center">
           <Link to="/" className="text-gray-600 hover:text-blue-800 font-medium transition">მთავარი</Link>
           <Link to="/products" className="text-gray-600 hover:text-blue-800 font-medium transition">პროდუქტები</Link>
+          
+          {/* ჩამატებული: პროდუქტის დამატება (მხოლოდ ავტორიზებულზე) */}
+          {isLoggedIn && (
+            <Link 
+              to="/add-product" 
+              className="bg-yellow-400 text-blue-900 px-4 py-2 rounded-xl font-bold text-sm hover:bg-yellow-500 transition shadow-sm border border-yellow-200"
+            >
+              + დამატება
+            </Link>
+          )}
+
           <Link to="/cart" className="relative text-gray-600 hover:text-blue-800 font-medium transition text-2xl">
             🛒
             {totalItems > 0 && (
@@ -50,7 +59,6 @@ function Navbar() {
             )}
           </Link>
 
-          {/* დინამიური ღილაკი: შესვლა ან გამოსვლა */}
           {isLoggedIn ? (
             <button 
               onClick={handleLogout}
@@ -86,13 +94,25 @@ function Navbar() {
 
       {/* Mobile Dropdown მენიუ */}
       {menuOpen && (
-        <div className="md:hidden flex flex-col gap-4 pt-4 pb-2 border-t border-gray-100 mt-3">
+        <div className="md:hidden flex flex-col gap-4 pt-4 pb-2 border-t border-gray-100 mt-3 animate-fadeIn">
           <Link to="/" onClick={() => setMenuOpen(false)} className="text-gray-700 hover:text-blue-800 font-medium text-lg px-2">
             🏠 მთავარი
           </Link>
           <Link to="/products" onClick={() => setMenuOpen(false)} className="text-gray-700 hover:text-blue-800 font-medium text-lg px-2">
             🛍️ პროდუქტები
           </Link>
+          
+          {/* ჩამატებული მობილურისთვისაც */}
+          {isLoggedIn && (
+            <Link 
+              to="/add-product" 
+              onClick={() => setMenuOpen(false)} 
+              className="bg-yellow-50 text-yellow-700 border border-yellow-200 px-4 py-3 rounded-2xl font-bold text-center"
+            >
+              ✨ პროდუქტის დამატება
+            </Link>
+          )}
+
           <Link to="/cart" onClick={() => setMenuOpen(false)} className="text-gray-700 hover:text-blue-800 font-medium text-lg px-2">
             🛒 კალათა {totalItems > 0 && `(${totalItems})`}
           </Link>
