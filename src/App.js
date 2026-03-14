@@ -1,6 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { CartProvider } from './context/CartContext';
+import { AuthProvider } from './context/AuthContext'; // 
+import { CartProvider } from './context/CartContext'; //  context ფოლდერშია
+
+// Components
+import ScrollToTop from './components/ScrollToTop'; //  components
 
 // Pages
 import Home from './pages/Home';
@@ -10,11 +13,15 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import AddProduct from './pages/AddProduct';
 import Register from './pages/Register';
+
 function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <Router>
+          {/* ScrollToTop დავამატე აქ, რომ ყოველ გადასვლაზე თავში ააგდოს */}
+          <ScrollToTop /> 
+          
           <Routes>
             {/* მთავარი გვერდი */}
             <Route path="/" element={<Home />} />
@@ -28,7 +35,7 @@ function App() {
             {/* ავტორიზაცია */}
             <Route path="/login" element={<Login />} />
             
-              {/* რეგისტრაცია */}
+            {/* რეგისტრაცია */}
             <Route path="/register" element={<Register />} />
 
             {/* კალათა */}
@@ -37,7 +44,7 @@ function App() {
             {/* პროდუქტის დამატება (Admin/User) */}
             <Route path="/add-product" element={<AddProduct />} />
             
-            {/* 404 ან სხვა შემთხვევაში შეგიძლია დაამატო Default გვერდი */}
+            {/* 404 ან სხვა შემთხვევაში Default გვერდი */}
             <Route path="*" element={<Home />} />
           </Routes>
         </Router>
