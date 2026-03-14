@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { 
-  Gift, Palette, Sparkles, Gem, Heart, 
+  Gift, Sparkles, Gem, Heart, 
   LayoutGrid, PlusCircle, Crown, ShoppingCart, 
   Check, Shirt, Rocket, Flower2, Cake, ArrowRight
 } from 'lucide-react';

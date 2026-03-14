@@ -4,7 +4,7 @@ import API from '../services/api';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 import { motion } from 'framer-motion';
-import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, Star, Check, Loader2, Heart } from 'lucide-react';
+import { ShoppingBag, ChevronLeft, ShieldCheck, Truck, Star, Check, Loader2 } from 'lucide-react';
 
 function ProductDetail() {
   const { id } = useParams();
